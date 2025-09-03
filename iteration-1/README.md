@@ -4,17 +4,21 @@ This iteration focuses on basic web app creation and configuration.
 
 1) Create an Azure App Service and Web App ✅
 2) Deploy a simple web application that connects to a database ✅
+3) Configure application settings and connection strings securely ✅
 
 These are the most essential fundamentals for creating and configuring Azure Web Apps with proper security settings.
 
 ### How to run
 Simply run the `up.sh` script. It will provision everything needed in correct order.
+Unfortunately zipping and uploading the application code through the azure CLI is a bit janky and might time out with the following message: 
+```
+An error occurred during deployment. Status Code: 502,  Please visit https://tiny-flask-web-app.scm.azurewebsites.net/api/deployments/latest to get more information about your deployment
+```
+Fret not❗ Simply navigate to the `/src` directory and upload it again with the following command: 
 
-
-### Step 2 ( testing ): Deploy a simple web application that connects to a database
-For this to work, just provision necessary infrastructure: Resource Group, Service Plan and Web app. 
-Simply zip the app.py and requirements.txt and run the following command: 
-`az webapp deploy --resource-group tiny-flask-resource-group --name tiny-flask-web-app --src-path app.zip --type zip`
+```bash
+az webapp deploy --resource-group tiny-flask-resource-group --name tiny-flask-web-app --src-path app.zip --type zip
+```
 
 For this demonstration I chose to use a PostgresSql Flexible Server and Database. 
 For connecting from local machine install the required software for python to connect to the Postgres server. 
@@ -71,12 +75,24 @@ Environment variables for database connection is passed through `app_settings` i
 | **Memory**                   | 1 GB (shared) | 1 GB (shared) | 1.75-7 GB              | 1.75-7 GB              | 3.5-14 GB                   | 3.5-14 GB                        |
 
 The jump from **Basic** to **Standard** is significant because it unlocks deployment slots. This is where App Services start to rival sophisticated deployment patterns achieved in my
-**azure-containerized-solutions** repository. 
+**azure-containerized-solutions** repository.
+Basic tier is the minimum for dedicated compute but lacks enterprise features like deployment slots, while Standard tier is where production-ready capabilities begin.
 
 
-### How to create database 
-1) Need resource group 
-2) Need a SQL database to run on `azurerm_postgresql_server`
-   3) Use SQL login
-3) Now set up a database table with `azurerm_postgresql_database`
-4) 
+### Securely storing connection string to database 
+In this iteration I have chosen to use a Azure Keyvault for securely storing the connection string for my postgres database.
+For granting access to the keyvault I have chosen to use `Access Policies`. This is fine for this demonstration, but I am aware that `RBAC` is the preferred choice, and indeed in the future,
+the only supported option.
+
+In my Terraform file I have for my web app created a identity block. 
+```terraform
+identity {
+    type = "SystemAssigned" 
+  }
+```
+This effectively create a `Service Principal` for my web application. 
+I can later grant access to whatever Access Policies I chose, through that *principal id*.
+I chose to do a hybrid approach where some of the database connection properties are still injected as environment variables. 
+However, the database password, which is auto generated, is very sensitive and is therefore stored in the keyvault.
+
+The application uses the **DefaultAzureCredential** and **SecretClient** modules provided by Azure in order to authenticate and read the secret. 

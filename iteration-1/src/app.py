@@ -1,19 +1,34 @@
 import psycopg2
 import os
 from flask import Flask, jsonify
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
+
+
+def get_secret_from_kv():
+    keyvault_name = os.environ.get("KV_NAME")
+    db_secret_name = os.environ.get("DB_SECRET_NAME")
+    keyvault_uri = f"https://{keyvault_name}.vault.azure.net"
+    credential = DefaultAzureCredential()
+    client = SecretClient(vault_url=keyvault_uri, credential=credential)
+    print(f"Retrieving secret from {keyvault_name}.")
+    return client.get_secret(db_secret_name).value
+
 
 web_app = Flask(__name__)
+
+# Get password in Keyvault
+db_password = get_secret_from_kv()
 
 # Create connection to Database
 connection = psycopg2.connect(
     host=os.environ.get("DB_HOST"),
     database=os.environ.get("DB_NAME"),
     user=os.environ.get("DB_USER"),
-    password=os.environ.get("DB_PASSWORD"),
+    password=db_password,
     port=5432,
     sslmode="require"
 )
-
 curs = connection.cursor()
 
 # Create table

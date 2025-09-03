@@ -15,6 +15,10 @@ provider "azurerm" {
   subscription_id = "8f9aed58-aa08-45bd-960a-2c15d4449132"
 }
 
+# Used to access the configuration properties of the AzureRM provider.
+# With this data source, one can get every property of the Azure account.
+data "azurerm_client_config" "current" {}
+
 # Create Resource Group
 resource "azurerm_resource_group" "tiny-flask" {
   name     = "tiny-flask-resource-group"
@@ -30,6 +34,11 @@ resource "azurerm_service_plan" "tiny-flask" {
   sku_name            = "B1"
 }
 
+# Generate a random password for the flexi server
+resource "random_password" "tiny-flask-db-server" {
+  length  = 20
+  special = true
+}
 
 # Create Postgres Flexible Database Server
 resource "azurerm_postgresql_flexible_server" "tiny-flask" {
@@ -39,7 +48,7 @@ resource "azurerm_postgresql_flexible_server" "tiny-flask" {
   version                       = "13"
   public_network_access_enabled = true # Simple for demonstration
   administrator_login           = "SandwormRyder666"
-  administrator_password        = "SardaukarKiller666"
+  administrator_password        = random_password.tiny-flask-db-server.result
   sku_name                      = "B_Standard_B2ms"
   zone                          = "1"
 }
@@ -64,6 +73,23 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "tiny-flask" {
   end_ip_address   = "255.255.255.255"
 }
 
+# Create Keyvault
+resource "azurerm_key_vault" "tiny-flask" {
+  location            = azurerm_resource_group.tiny-flask.location
+  resource_group_name = azurerm_resource_group.tiny-flask.name
+  sku_name            = "standard"
+  name                = "tiny-flask-kv-666"
+  tenant_id           = data.azurerm_client_config.current.tenant_id # Outstanding move!
+}
+
+# Create KV secret with connection string to database
+resource "azurerm_key_vault_secret" "tiny-flask" {
+  name         = "tiny-flask-db-password"
+  value        = random_password.tiny-flask-db-server.result
+  key_vault_id = azurerm_key_vault.tiny-flask.id
+}
+
+
 # Create a Web App
 resource "azurerm_linux_web_app" "tiny-flask" {
   location            = azurerm_resource_group.tiny-flask.location
@@ -86,9 +112,25 @@ resource "azurerm_linux_web_app" "tiny-flask" {
     "WEBSITES_PORT"                  = "8000" # This tells App Service which port Gunicorn uses
 
     # Inject Postgres connection details
-    "DB_HOST"     = azurerm_postgresql_flexible_server.tiny-flask.fqdn
-    "DB_NAME"     = azurerm_postgresql_flexible_server_database.tiny-flask.name
-    "DB_USER"     = azurerm_postgresql_flexible_server.tiny-flask.administrator_login
-    "DB_PASSWORD" = azurerm_postgresql_flexible_server.tiny-flask.administrator_password
+    "DB_HOST"        = azurerm_postgresql_flexible_server.tiny-flask.fqdn
+    "DB_NAME"        = azurerm_postgresql_flexible_server_database.tiny-flask.name
+    "DB_USER"        = azurerm_postgresql_flexible_server.tiny-flask.administrator_login
+    "KV_NAME"        = azurerm_key_vault.tiny-flask.name
+    "DB_SECRET_NAME" = azurerm_key_vault_secret.tiny-flask.name
   }
+  identity {
+    type = "SystemAssigned" # Created a Service Principal for the web application
+  }
+}
+
+# Grant web app access to read secrets
+resource "azurerm_key_vault_access_policy" "tiny-flask" {
+  key_vault_id = azurerm_key_vault.tiny-flask.id
+  # Get the newly created service principal id
+  object_id = azurerm_linux_web_app.tiny-flask.identity[0].principal_id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+
+  secret_permissions = [
+    "Get", "List", # Read and list secrets from keyvault
+  ]
 }
