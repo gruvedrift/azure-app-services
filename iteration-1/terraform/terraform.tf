@@ -40,6 +40,12 @@ resource "random_password" "tiny-flask-db-server" {
   special = true
 }
 
+# Generate random keyvault name. They need to be globally unique.
+resource "random_string" "kv-name" {
+  length  = 8
+  special = false
+}
+
 # Create Postgres Flexible Database Server
 resource "azurerm_postgresql_flexible_server" "tiny-flask" {
   name                          = "tiny-flask-flexi-db-server"
@@ -78,15 +84,8 @@ resource "azurerm_key_vault" "tiny-flask" {
   location            = azurerm_resource_group.tiny-flask.location
   resource_group_name = azurerm_resource_group.tiny-flask.name
   sku_name            = "standard"
-  name                = "tiny-flask-kv-666"
+  name                = "tiny-flask${random_string.kv-name.result}"
   tenant_id           = data.azurerm_client_config.current.tenant_id # Outstanding move!
-}
-
-# Create KV secret with connection string to database
-resource "azurerm_key_vault_secret" "tiny-flask" {
-  name         = "tiny-flask-db-password"
-  value        = random_password.tiny-flask-db-server.result
-  key_vault_id = azurerm_key_vault.tiny-flask.id
 }
 
 
@@ -97,6 +96,8 @@ resource "azurerm_linux_web_app" "tiny-flask" {
   name                = "tiny-flask-web-app"
   service_plan_id     = azurerm_service_plan.tiny-flask.id
 
+  https_only = true # Force only HTTPS protocol
+
   site_config {
     application_stack {
       python_version = "3.10"
@@ -105,6 +106,13 @@ resource "azurerm_linux_web_app" "tiny-flask" {
     app_command_line = "gunicorn --bind 0.0.0.0:8000 --timeout 600 app:web_app"
     # App Services runs behind a reverse proxy that expects the application to listen to a specific port.
     always_on = true
+
+    # Add CORS configuration for localhost consumption of API-endpoints
+    cors {
+      allowed_origins = [
+        "http://localhost:3000"
+      ]
+    }
 
   }
   app_settings = {
@@ -134,3 +142,12 @@ resource "azurerm_key_vault_access_policy" "tiny-flask" {
     "Get", "List", # Read and list secrets from keyvault
   ]
 }
+
+# Create KV secret with connection string to database
+# This is created after Web-App and Access Policy in order for the Service Principal to have the necessary permissions.
+resource "azurerm_key_vault_secret" "tiny-flask" {
+  name         = "tiny-flask-db-password"
+  value        = random_password.tiny-flask-db-server.result
+  key_vault_id = azurerm_key_vault.tiny-flask.id
+}
+

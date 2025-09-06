@@ -4,7 +4,9 @@ This iteration focuses on basic web app creation and configuration.
 
 1) Create an Azure App Service and Web App ✅
 2) Deploy a simple web application that connects to a database ✅
-3) Configure application settings and connection strings securely ✅
+3) Configure application settings and connection strings securely ✅ 
+4) Enable HTTPS and configure custom domain with TLS certificate ✅ 
+5) Set up API settings for external service integration ✅ 
 
 These are the most essential fundamentals for creating and configuring Azure Web Apps with proper security settings.
 
@@ -80,11 +82,11 @@ Basic tier is the minimum for dedicated compute but lacks enterprise features li
 
 
 ### Securely storing connection string to database 
-In this iteration I have chosen to use a Azure Keyvault for securely storing the connection string for my postgres database.
+In this iteration I have chosen to use an Azure Keyvault for securely storing the connection string for my postgres database.
 For granting access to the keyvault I have chosen to use `Access Policies`. This is fine for this demonstration, but I am aware that `RBAC` is the preferred choice, and indeed in the future,
 the only supported option.
 
-In my Terraform file I have for my web app created a identity block. 
+In my Terraform file I have for my web app created an identity block. 
 ```terraform
 identity {
     type = "SystemAssigned" 
@@ -96,3 +98,32 @@ I chose to do a hybrid approach where some of the database connection properties
 However, the database password, which is auto generated, is very sensitive and is therefore stored in the keyvault.
 
 The application uses the **DefaultAzureCredential** and **SecretClient** modules provided by Azure in order to authenticate and read the secret. 
+
+### HTTPS and TLS
+#### Browser -> Azure App Service
+When using azures `*.azurewebsites.net` domains, Azure already issues and manages a TLS certificate. The certificate is already signed by a public
+Certificate Authority (**CA**) that all browsers trust. If one would opt for a custom domain one would have to: 
+1) Upload a TLS certificate, which can be bought through DigiCert etc. or 
+2) Use Azure's **App Service Managed Certificate**
+
+#### Azure Database 
+The Postgres Flexi server is configured by Azure to enforce SSL/TLS connections. It uses a server side certificate issued by Microsoft's internal 
+CA for Azure DB service. Clients, like `psycopg2` verify the certificate by setting `sslmode=require` in the connection properties. 
+
+#### Azure Keyvault
+Keyvault endpoints are protected by Azure's HTTPS infrastructure. Again, the TLS certificate is issued by a trusted public CA, just like with the web application.
+The SDKs, like `azure-identity` which is used in this project, automatically validates the certificate using the underlying systems trusted CA bundle.
+
+### CORS  ( Setting up API settings for external service integration)
+CORS, or Cross-Origin Resource Sharing, is a browser security mechanism. When enabling CORS on the Linux Web App, it packs headers on the response.
+If the receiving browser does not see the correct CORS headers, the response is blocked.
+To run the provided `dune-quote-consumer.html` file, simply run: 
+```bash
+python3 -m http.server 3000
+```
+and visit : `http://localhost:3000/dune-quote-consumer.html`
+If CORS are not enabled on server, one would se an error like this in the browser when attempting a fetch:  
+```
+Access to fetch at 'https://tiny-flask-web-app.azurewebsites.net/dune-quotes' from origin 'http://localhost:3000'
+has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+```

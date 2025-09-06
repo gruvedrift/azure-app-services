@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dune Quotes Client</title>
+</head>
+<body>
+<h1>Dune Quotes</h1>
+<button onclick="fetchQuotes()">Load Quotes</button>
+<div id="quotes"></div>
+<script>
+    async function fetchQuotes() {
+        try {
+            // Will only work if CORS are enabled on Web App
+            const response = await fetch('https://tiny-flask-web-app.azurewebsites.net/dune-quotes');
+            const quotes = await response.json();
+            const quoteDivs = document.getElementById('quotes')
+            quoteDivs.innerHTML = quotes.map(quote =>
+                `<p><strong>${quote.name}:</strong> "${quote.quote}"</p>`
+            ).join('');
+        } catch (error) {
+            console.error('Failed to fetch quotes:', error);
+        }
+    }
+</script>
+</body>
+</html>
