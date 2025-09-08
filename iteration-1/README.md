@@ -80,19 +80,22 @@ The jump from **Basic** to **Standard** is significant because it unlocks deploy
 **azure-containerized-solutions** repository.
 Basic tier is the minimum for dedicated compute but lacks enterprise features like deployment slots, while Standard tier is where production-ready capabilities begin.
 
+### Terraform Executor Access Policy 
+In order for Terraform to write secrets to keyvault, I have provisioned an Access Policy with the necessary rights in order to do so.
+This Access Policy is bound to the Key Vault, and grants rights on apply and destroy.
 
 ### Securely storing connection string to database 
 In this iteration I have chosen to use an Azure Keyvault for securely storing the connection string for my postgres database.
 For granting access to the keyvault I have chosen to use `Access Policies`. This is fine for this demonstration, but I am aware that `RBAC` is the preferred choice, and indeed in the future,
 the only supported option.
 
-In my Terraform file I have for my web app created an identity block. 
+In my Terraform file I have for my web app created an identity block.
 ```terraform
 identity {
     type = "SystemAssigned" 
   }
 ```
-This effectively create a `Service Principal` for my web application. 
+This effectively create a `Service Principal` for my web application, which is a managed identity.
 I can later grant access to whatever Access Policies I chose, through that *principal id*.
 I chose to do a hybrid approach where some of the database connection properties are still injected as environment variables. 
 However, the database password, which is auto generated, is very sensitive and is therefore stored in the keyvault.
@@ -127,3 +130,5 @@ If CORS are not enabled on server, one would se an error like this in the browse
 Access to fetch at 'https://tiny-flask-web-app.azurewebsites.net/dune-quotes' from origin 'http://localhost:3000'
 has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
 ```
+
+🌐 Identity #1 — Terraform executor identity ( MUST WRITE ABOUT!!)

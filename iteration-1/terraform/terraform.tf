@@ -88,6 +88,14 @@ resource "azurerm_key_vault" "tiny-flask" {
   tenant_id           = data.azurerm_client_config.current.tenant_id # Outstanding move!
 }
 
+# Create a Terraform Executor Identity for writing secrets
+resource "azurerm_key_vault_access_policy" "terraform" {
+  key_vault_id       = azurerm_key_vault.tiny-flask.id
+  tenant_id          = data.azurerm_client_config.current.tenant_id
+  object_id          = data.azurerm_client_config.current.object_id
+  secret_permissions = ["Set", "Get", "List", "Purge"]
+}
+
 
 # Create a Web App
 resource "azurerm_linux_web_app" "tiny-flask" {
@@ -139,7 +147,7 @@ resource "azurerm_key_vault_access_policy" "tiny-flask" {
   tenant_id = data.azurerm_client_config.current.tenant_id
 
   secret_permissions = [
-    "Get", "List", # Read and list secrets from keyvault
+    "Get", "List" # Read and list secrets from keyvault
   ]
 }
 
@@ -149,5 +157,6 @@ resource "azurerm_key_vault_secret" "tiny-flask" {
   name         = "tiny-flask-db-password"
   value        = random_password.tiny-flask-db-server.result
   key_vault_id = azurerm_key_vault.tiny-flask.id
+  # Ensure the access policy for Terraform is created before trying to store the secret
+  depends_on = [azurerm_key_vault_access_policy.terraform]
 }
-
