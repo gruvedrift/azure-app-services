@@ -83,18 +83,3 @@ resource "azurerm_linux_web_app" "tiny-flask" {
     "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
   }
 }
-
-# Nice to have outputs for automation
-output "acr_login_server" {
-  description = "Login server for ACR"
-  value       = azurerm_container_registry.tiny-flask-cr.login_server
-}
-
-output "acr_name" {
-  description = "ACR name"
-  value       = azurerm_container_registry.tiny-flask-cr.name
-}
-
-
-
-
