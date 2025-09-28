@@ -5,6 +5,11 @@ from flask import Flask, jsonify
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from logging_config import setup_logger
+from meter_config import (
+    slow_endpoint_accumulated,
+    error_rate_counter,
+    success_rate_counter
+)
 
 web_app = Flask(__name__)
 
@@ -30,8 +35,11 @@ def home():
 @web_app.route('/slow')
 def slow_endpoint():
     delay = random.uniform(0.5, 3.0)
-    logger.debug(f"Starting slow endpoint with planned delay: {delay}")
     time.sleep(delay)
+
+    # Add measured delay to meter
+    slow_endpoint_accumulated.add(delay)
+
     logger.info(f"Slow endpoint completed after {delay:.2f} seconds")
     return jsonify({"delay": delay})
 
@@ -40,8 +48,12 @@ def slow_endpoint():
 def error_endpoint():
     # 30% chance of error
     if random.random() < 0.3:
+        # Increment error counter
+        error_rate_counter.add(1)
         logger.error("About to throw simulated error")
-        raise Exception("Simulated error! ")
+        raise Exception("Simulated error!")
+    # Increment success counter
+    success_rate_counter.add(1)
     return jsonify({"status": "success"})
 
 
@@ -51,6 +63,17 @@ def memory_intensive():
     data = [i for i in range(10_000_000)]
     logger.info(f"Memory operation completed - processed {len(data)} items")
     return jsonify({"processed": len(data)})
+
+
+@web_app.route('/metrics')
+def metrics_summary():
+    print("error_rate_counter: ", error_rate_counter)
+    print("success_rate_counter: ", success_rate_counter)
+    error_rate = (error_rate_counter / success_rate_counter) * 100
+    return jsonify({
+        "error_rate": error_rate,
+        "total_delay": slow_endpoint_accumulated
+    })
 
 
 if __name__ == '__main__':

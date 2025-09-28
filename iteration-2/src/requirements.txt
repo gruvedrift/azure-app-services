@@ -1,4 +1,4 @@
 flask==3.0.0
 azure-monitor-opentelemetry==1.2.0
 opentelemetry-instrumentation-flask==0.58b0
-setuptools>=68.0.0
+setuptools<81

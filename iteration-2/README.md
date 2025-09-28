@@ -89,4 +89,44 @@ AppTraces
 | order by TimeGenerated desc
  ```
 This query will display all logs containing the string "endpoint".
-![image](./img/KQL-example.png)
+![image](./img/kql-example.png)
+
+
+### 3. Implement custom telemetry and performance counters
+
+This part is quite easy, we can use openTelemetry's meter to create gauges and report on them.
+In Azure Log Analytics Workspace we can the query for a special kind of telemetry: `Appmetrics`.
+
+#### Short on KQL (Kusto Query Language)
+A Microsoft developed, read-only query language for exploring and analyzing datasets, such as the Application Insights Tables. Operations can be piped `|` together to create 
+powerful and meaningful queries for analytics work.
+
+Here are a couple of examples of queries on the custom created gauges from this project:
+
+###### Get all custom metrics ( gauges / counters ) to query for
+```KQL
+AppMetrics 
+| sumarize by Name
+```
+![image](./img/kql-get-custom-gauges.png)
+
+##### Total delay used on slow endpoint
+```KQL
+AppMetrics
+| where Name == "total_delay_slow_endpoint"
+| summarize total_delay_s = sum(Sum)
+```
+
+##### Output success / error rate with percentage distribution
+```KQL
+AppMetrics
+| where Name in ("simulated_errors_total", "error_endpoint_success_total")
+| summarize TotalValue = sum(Sum) by Name
+| evaluate pivot(Name, sum(TotalValue)) // extend table with columns for total requests and the calculated succes / error rate
+| extend TotalRequests = simulated_errors_total + error_endpoint_success_total
+| extend Successrate = round(todouble(error_endpoint_success_total) / todouble(TotalRequests) * 100, 2)
+| extend ErrorRate = round(todouble(simulated_errors_total) / todouble(TotalRequests) * 100, 2)
+```
+![image](./img/kql-error-success-rate.png)
+
+Tons of information about the possibilities with KQL can be found in the Microsoft fabric ( of time ) documentation: [Kusto](https://learn.microsoft.com/en-us/kusto/?view=microsoft-fabric)
