@@ -130,3 +130,52 @@ AppMetrics
 ![image](./img/kql-error-success-rate.png)
 
 Tons of information about the possibilities with KQL can be found in the Microsoft fabric ( of time ) documentation: [Kusto](https://learn.microsoft.com/en-us/kusto/?view=microsoft-fabric)
+
+### 4. Set up automated alerts for errors and performance degradation
+
+Azure alerting is a fundamental monitoring concept that transforms your passive telemetry data into an active notification system.
+Azure alerts consists of three components:
+- **The alert rule**: which defines the condition for triggering the alert. These rules continuously evaluate metrics or logs against defined thresholds. 
+
+
+- **The action group**: defines what happens if an alert is raised. It can use email addresses, SMS and webhook's in order to alert the right instances. 
+However, action groups can also trigger Azure functions for custom remediation logic, send alerts to slack, create tickets to a service team. It for example automatically scale up your Azure Service plan to handle unexpected loads, or clear caches if memory consumption is rising too fast.
+
+
+- **The alerts**: which are the actual instances created when the rules trigger, containing all the context about what happened and when.
+
+Alerts can be created on for example the custom metric values from Application Insights for this project. We can also create alerts from platform metrics from App Service, like CPU usage, response times, or even log events.
+Platform metric alerts are perfect for *threshold-based* monitoring, like "CPU above 70%", while log alerts excel at detecting patterns, like "more than 10 errors the last 5 minutes for this endpoint" 
+
+It is important to note that even though one might create Alert rules, they do not actually do anything, unless they are tied to an action group. 
+For this demonstration I have chosen to create one **Metric Alert ( threshold-based )** and one **Log Query ( pattern-based / log-based monitoring)**
+
+- Platform Metric Alert: CPU usage > 70% on App Service Plan. Implemented with `azurerm_monitor_metric_alert`
+- Log Query Alert: Fire when `/error` endpoint reports more than 10 errors within a 1-minute bucket.  Implemented with `azurerm_monitor_scheduled_query_rules_alert`
+
+#### Action Group 
+The action group is created with Terraform `azurerm_monitor_action_group` resource. You can replace the `email_receiver / sms_receiver` with your own email and phone number.
+
+## Note on Application Insights vs Log Analytics Workspace 
+### Application Insights
+- Focused on **Application level** telemetry: requests, traces, custom-metrics, exceptions etc. 
+- SDK driven ( This example application uses OpenTelemetry exporter to send data here ).
+- Can run KQL queries, but only against its own data 
+
+### Log Analytics Workspace 
+- **Centralized data store** for all kinds of telemetry, not just app-level.
+- Collects data from many sources, VMs, Containers, networking, App Services and also Application Insights. 
+- Runs KQL across all connected resources.
+
+In this project, the **Flask Application** with **OpenTelemetry** &rarr; sends data to **Application Insights** ( via connection string).
+The **Application Insights** resource forwards &rarr; all data to the **Log Analytics Workspace**
+
+### How to test:
+After replacing the email / phone number with your own and running the `up.sh` script, everything is ready for testing. 
+Use the script to start sending requests for endpoints of your choosing. 
+```bash
+simulate_load.sh
+```
+The default setup will utilize `hey` to hammer the `/error` and `/memory` endpoint on a regular interval.
+You should receive an email and sms alert about high spikes in CUP from the App Service Plan, and an alert about 
+high number of errors from the Log Analytics Workspace.

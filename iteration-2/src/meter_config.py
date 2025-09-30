@@ -1,4 +1,3 @@
-from opentelemetry import metrics
 from opentelemetry.metrics import get_meter
 
 # Create meter for custom metrics
