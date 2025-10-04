@@ -1,13 +1,11 @@
 ## Iteration 2
 
-1. Enable Application Insights integration
-2. Configure application logging levels and destinations
-3. Implement custom telemetry and performance counters
-4. Set up automated alerts for errors and performance degradation
-5. Create dashboards for monitoring application health
-6. Practice troubleshooting using logs and metrics
-
 ### This iteration is mostly about App Insights and logging.
+
+Due to immense deployment overhead and deployment delay, I have chosen to move away from zip deployments and back to
+docker images.
+NOTE: When you provision an Azure Application Insights, Azure will automatically create a Managed Log Analytics
+Workspace ( unless you create on yourself )
 
 ## Application Insights
 
@@ -27,13 +25,6 @@ Typical telemetry are:
 For this iteration I have decided to create a stripped-down stack in order to focus on the learning objective at hand:
 
 *Implement comprehensive monitoring, logging, and diagnostics for applications.*
-
-### Iteration 2
-
-Due to immense deployment overhead and deployment delay, I have chosen to move away from zip deployments and back to
-docker images.
-NOTE: When you provision an Azure Application Insights, Azure will automatically create a Managed Log Analytics
-Workspace ( unless you create on yourself )
 
 ### 1. Enable Application Insights integration
 
@@ -58,8 +49,6 @@ Now it is possible to see and query for every event that happens within the appl
 have
 to know what to query for when trying to retrieve useful and valuable information.
 
-### TODO add more info about what we can observe in Application Insights and in the log analytics workspace.
-
 ### 2. Configure application logging levels and destinations
 
 Telemetry data is great for understanding application behavior at a high level.
@@ -79,7 +68,7 @@ Logging is configured in a separate `logging_config.py` file, and imported as a 
 
 `INFO mode` = log everything except `DEBUG` (Less noisy, logs `INFO, WARNING, ERROR, CRITICAL`)
 
-### How to test logging: 
+#### How to test logging: 
 1) Provision the resources with the `up.sh` script
 2) Run the `simulate_load.sh` script. It will perform a random number of requests to various endpoints.
 3) Enter the Log Analytics Workspace in Azure Portal. Choose any predefined query, or edit your own: 
@@ -156,13 +145,13 @@ For this demonstration I have chosen to create one **Metric Alert ( threshold-ba
 #### Action Group 
 The action group is created with Terraform `azurerm_monitor_action_group` resource. You can replace the `email_receiver / sms_receiver` with your own email and phone number.
 
-## Note on Application Insights vs Log Analytics Workspace 
-### Application Insights
+### Note on Application Insights vs Log Analytics Workspace 
+#### Application Insights
 - Focused on **Application level** telemetry: requests, traces, custom-metrics, exceptions etc. 
 - SDK driven ( This example application uses OpenTelemetry exporter to send data here ).
 - Can run KQL queries, but only against its own data 
 
-### Log Analytics Workspace 
+#### Log Analytics Workspace 
 - **Centralized data store** for all kinds of telemetry, not just app-level.
 - Collects data from many sources, VMs, Containers, networking, App Services and also Application Insights. 
 - Runs KQL across all connected resources.
@@ -179,3 +168,26 @@ simulate_load.sh
 The default setup will utilize `hey` to hammer the `/error` and `/memory` endpoint on a regular interval.
 You should receive an email and sms alert about high spikes in CUP from the App Service Plan, and an alert about 
 high number of errors from the Log Analytics Workspace.
+
+
+### 5. Create dashboards for monitoring application health
+Creating custom dashboards is usually done through the Azure Portal. That way, one may utilize the vizual editor and drag-and-drop features therein. 
+After creation, a dashboard may be exported / downloaded as a `JSON` file, and later deployed through ARM templates, Terraform or other IaC tools. With Terraform, we can use this resource: 
+```terraform
+resource "azurerm_dashboard" "tiny_flask_dashboard" {
+  name                = "tiny-flask-health-dashboard"
+  resource_group_name = azurerm_resource_group.tiny-flask-rg.name
+  location            = azurerm_resource_group.tiny-flask-rg.location
+
+  tags = {
+    source = "terraform"
+  }
+  dashboard_properties = jsondecode({
+    // JSON formated dashboard... 
+  })
+}
+```
+Here is a screenshot of one I created for this project: 
+![image](./img/dashboard-example.png)
+
+
