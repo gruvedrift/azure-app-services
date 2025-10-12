@@ -173,3 +173,5 @@ When said branch is merged to main, we trigger a slot promotion, and new code is
    
    I have created an example workflow for deploying to, and updating application version variable of the `STAGING` slot. 
    Take a look at the `deploy-staging.yml` file for reference.
+
+5) Next you should create a new branch, do some code changes within the `/iteration-3/` directory, and create a pull request after pushing changes to GitHub.
