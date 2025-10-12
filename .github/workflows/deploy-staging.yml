@@ -1,0 +1,66 @@
+# Name appears in GitHub Actions UI
+name: Deploy to Staging on Pull Request
+
+# Definition for when this workflow should run
+on:
+  pull_request:
+    # Only trigger on Pull Request to main branch
+    branches:
+      - main
+    # Only trigger when files in iteration-3 are changed. This is called "path filtering".
+    paths:
+      - 'iteration-3/**'
+
+# Definition of jobs to run when this workflow executes
+jobs:
+  deploy-to-staging:
+    runs-on: ubuntu-latest
+
+    # Definition of sequence for step
+    steps:
+      # Step 1: Checkout the repository code so that the workflow can access Dockerfile and application source files.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Authenticate to Azure using the Service Principal
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Step 3: Log into Azure Container Registry for Docker operations
+      - name: Log in to Azure Container Registry
+        run: |
+          docker login ${{ secrets.ACR_LOGIN_SERVER }} \
+          -u ${{ secrets.ACR_USERNAME }} \
+          -p ${{ secrets.ACR_PASSWORD }}
+
+      # Step 4: Build Docker image with a PR-specific tag
+      - name: Build Docker image
+        working-directory: iteration-3/src
+        run: |
+          docker build --platform linux/arm64 \
+          -t ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-{{ github.event.pull_request.number }} .
+
+      # Step 5: Push Docker image to ACR
+      - name: Push image to ACR
+        run: |
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-{{ github.event.pull_request.number }}
+
+      # Step 6: Update staging slot to use the new PR image
+      - name: Update staging slot container image
+        run: | 
+          az webapp config container set \ 
+            --name tiny-flask-web-app \
+            --resource-group tiny-flask-resource-group \
+            --slot tiny-flask-staging-slot \
+            --container-image-name ${{ secret.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-{{ github.event.pull_request.number }}
+
+      # Step 7: Update APPLICATION_VERSION variable to show PR number
+      - name: Update staging application version
+        run: |
+          az webapp config appsettings set \
+            --name tiny-flask-web-app \
+            --resource-group tiny-flask-resource-group \
+            --slot tiny-flask-staging-slot
+            --settings APPLICATION_VERSION="pr-{{ github.event.pull_request.number }}"
