@@ -14,7 +14,6 @@ provider "azurerm" {
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
-
   }
   subscription_id = "8f9aed58-aa08-45bd-960a-2c15d4449132"
 }
@@ -133,7 +132,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "error-spike" {
   location            = azurerm_resource_group.tiny-flask-rg.location
   data_source_id      = azurerm_log_analytics_workspace.tiny-flask-aws.id
   # The resource URI over which log search query is to be run.
-  description         = "Alert when more than 10 errors occur within a 1 minute bucket"
+  description = "Alert when more than 10 errors occur within a 1 minute bucket"
 
   query = <<-KQL
       AppTraces

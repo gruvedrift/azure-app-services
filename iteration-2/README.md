@@ -1,4 +1,11 @@
-## Iteration 2
+## Project Iteration 2: Monitoring and Diagnostics Implementation
+#### Syllabus Objectives Covered:
+* Configure and implement diagnostics and logging
+
+**Learning Goals:** Implement comprehensive monitoring, logging, and diagnostics for production-ready applications.
+
+**Project Description:** Enhance your web application from Iteration 1 with detailed monitoring capabilities. Implement application logging, performance monitoring, and
+automated alerting for production issues.
 
 ### This iteration is mostly about App Insights and logging.
 
@@ -191,3 +198,25 @@ Here is a screenshot of one I created for this project:
 ![image](./img/dashboard-example.png)
 
 
+### Key Learning Questions:
+#### How do you differentiate between different types of logs in App Service?
+This project touches on three different types of logs which App Service generates. 
+-**Platform logs** : These are logs we can observe in the Log Stream in Azure Portal. Logs like "Site startup probe succeeded" and "Container is running" are examples of Platform Logs.
+-**Application logs** : In our Python code we used **stdout** and **stderr** for logging specific events, such as `logger.info("Home endpoint accessed")`
+-**AppTraces**: The final category appeared in `Application Insights` and were created through our custom gauges and OpenTelemetry.
+
+#### What's the relationship between Application Insights and App Service logging?
+These two systems operate in parallel. The `App Service` logs provides the foundational platform observability. Once we added the `Application Insights` connection string, and 
+added `OpenTelemetry` to the Application, we effectively created a bridge where the application itself can push rich telemetry to `Application Insights`. 
+
+#### How can you correlate logs across multiple application components?
+Even though this project example is a single application, we can connect failed requests to specific exceptions. Since `OpenTelemetry` adds operation ID's and 
+parent ID's to related log entries we would query something like this:
+```
+AppRequests | where Success == false | join AppExceptions on OperationId
+```
+These three concepts work together to create comprehensive observability: 
+App Service provides the platform foundation, Application Insights adds application-specific intelligence, and correlation IDs tie everything together into diagnostic stories.
+
+A more "real-life" scenario would be to have multiple resources or applications, sharing the same `Application Insights` instance. 
+We could then do powerful log queries and analytics on shared `Correlation Id's` across multiple services. 
