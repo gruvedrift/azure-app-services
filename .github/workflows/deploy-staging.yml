@@ -54,7 +54,7 @@ jobs:
             --name tiny-flask-web-app \
             --resource-group tiny-flask-resource-group \
             --slot tiny-flask-staging-slot \
-            --container-image-name ${{ secret.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-{{ github.event.pull_request.number }}
+            --container-image-name ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-{{ github.event.pull_request.number }}
 
       # Step 7: Update APPLICATION_VERSION variable to show PR number
       - name: Update staging application version

@@ -172,4 +172,4 @@ When said branch is merged to main, we trigger a slot promotion, and new code is
    start working on the workflows. 
    
    I have created an example workflow for deploying to, and updating application version variable of the `STAGING` slot. 
-   Take a look at the [deploy-staging.yml](https://github.com/gruvedrift/azure-app-services/blob/main/iteration-3/./github/workflows/deploy-staging.yml) for reference.
+   Take a look at the `deploy-staging.yml` file for reference.
