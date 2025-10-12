@@ -39,7 +39,7 @@ jobs:
       - name: Build Docker image
         working-directory: iteration-3/src
         run: |
-          docker build --platform linux/arm64 \
+          docker build --platform linux/amd64 \
           -t ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-{{ github.event.pull_request.number }} .
 
       # Step 5: Push Docker image to ACR
