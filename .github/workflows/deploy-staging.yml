@@ -39,22 +39,22 @@ jobs:
       - name: Build Docker image
         working-directory: iteration-3/src
         run: |
-          docker build --platform linux/arm64 \
-          -t ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-{{ github.event.pull_request.number }} .
+          docker build --platform linux/amd64 \
+          -t ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-${{ github.event.pull_request.number }} .
 
       # Step 5: Push Docker image to ACR
       - name: Push image to ACR
         run: |
-          docker push ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-{{ github.event.pull_request.number }}
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-${{ github.event.pull_request.number }}
 
       # Step 6: Update staging slot to use the new PR image
       - name: Update staging slot container image
         run: | 
-          az webapp config container set \ 
+          az webapp config container set \
             --name tiny-flask-web-app \
             --resource-group tiny-flask-resource-group \
             --slot tiny-flask-staging-slot \
-            --container-image-name ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-{{ github.event.pull_request.number }}
+            --container-image-name ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-${{ github.event.pull_request.number }}
 
       # Step 7: Update APPLICATION_VERSION variable to show PR number
       - name: Update staging application version
@@ -62,5 +62,5 @@ jobs:
           az webapp config appsettings set \
             --name tiny-flask-web-app \
             --resource-group tiny-flask-resource-group \
-            --slot tiny-flask-staging-slot
-            --settings APPLICATION_VERSION="pr-{{ github.event.pull_request.number }}"
+            --slot tiny-flask-staging-slot \
+            --settings APPLICATION_VERSION="pr-${{ github.event.pull_request.number }}"
