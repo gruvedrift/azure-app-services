@@ -177,3 +177,5 @@ When said branch is merged to main, we trigger a slot promotion, and new code is
 5) Next you should create a new branch, do some code changes within the `/iteration-3/` directory, and create a pull request after pushing changes to GitHub:
    ![image](./img/pr-example.png)
    This should start our workflow, which you can observe working in the pull request, or in the `Actions` tab in your repository.
+6) Once the workflow is finished, you should be able to see your changes to `app.py` and `APPLICATION_VERSION` variable in the `STAGING` slot.
+7) The last thing we need to implement is a manually triggered workflow that runs on `MERGE`. I have provided an example workflow in the file `promote-staging-to-production.yml`.
