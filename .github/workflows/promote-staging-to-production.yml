@@ -1,0 +1,34 @@
+# Name thot appears in GitHub Actions UI
+name: Promote Staging to Production
+
+# This workflow uses manual trigger only
+on:
+  workflow_dispatch:
+
+# Definition of jobs to run when this workflow is executed
+jobs:
+  promote-to-production:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Authenticate to Azure
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Step 2: Perform the slot swap
+      - name: Swap Staging to Production
+        run: |
+          az webapp deployment slot swap \
+            --name tiny-flask-web-app \
+            --resource-group tiny-flask-resource-group \
+            --slot tiny-flask-staging-slot \
+            --target-slot production
+
+      # Step 3: Workflow feedback
+      - name: Verify Production Environment
+        run: |
+          echo "Production deployment complete!"
+          echo "Production is now running staged code"
+          echo "Staging now contains the previous production code for rollback if needed"
