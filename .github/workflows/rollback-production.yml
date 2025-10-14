@@ -18,7 +18,7 @@ jobs:
       - name: Log rollback reason
         run: |
           echo "=== EMERGENCY ROLLBACK INITIATED ==="
-          echo "Reason: ${{ github.event.inputs.rason }}
+          echo "Reason: ${{ github.event.inputs.reason }}
           echo "Initiated by: ${{ github.actor }}
           echo "Timestamp: $(date)"
 

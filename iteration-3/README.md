@@ -194,3 +194,43 @@ swap the slot again, so that `PRODUCTION` is demoted to `STAGING`, and `STAGING`
 This puts us in the exact state we had before our deployment. 
 
 Rollback workflow is provided in the file `rollback-production.yml`.
+
+### Key Learning Questions:
+#### What happens to application state during a slot swap?
+During a swap, Azure performs the following steps: 
+1) Azure applies production slot settings to the staging slot
+2) Azure warms up the staging slot by restarting it with the new settings. This ensures that the instance is ready for traffic.
+3) Azure re-directs all production traffic to the staging slot instance.
+4) The former production slot becomes the staging slot. 
+
+
+❗IMPORTANT ON STATE ❗
+- In-memory application state ( cache, active sessions, etc. ) are lost, as both slots restarts.
+- Swappable settings move with the code between slots.
+- Slot-specific settings remain with their respective slots. 
+- External state (databases, storage accounts etc. ) is unaffected by the swap. 
+
+#### Which settings should be slot-specific versus shared between slots?
+###### Slot-specific (sticky) settings could include:
+- Database connection strings
+- API endpoints and keys for external services that differ between the environments
+- Authentication / Authorization configurations
+
+###### Shared (swappable) settings could include:
+- Application version identifiers
+- Configuration values that your application code expects to find
+- Settings that needs to be tested in staging before going to production
+
+#### How can you test changes in staging that closely mirror production conditions?
+###### Infrastructure configuration:
+- Use the same App Service Plan tier (or equivalent) for staging as production to match CPU, memory, and performance characteristics
+- Configure staging with the same number of instances to test scaling
+- Apply identical runtime versions, framework versions, and platform settings
+- Use load testing tools (Azure Load Testing, Apache JMeter) to simulate production traffic patterns against staging
+
+###### Configuration parity:
+- Mirror all production application settings in staging (except slot-specific ones)
+- Test the exact container image or deployment package that will go to production
+
+
+
