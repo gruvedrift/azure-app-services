@@ -1,0 +1,39 @@
+name: Emergency Rollback Production
+
+# Manually triggered
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for rollback ( audit trail )'
+        required: true
+        default: ''
+
+jobs:
+  rollback-production:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Log rollback reason
+      - name: Log rollback reason
+        run: |
+          echo "=== EMERGENCY ROLLBACK INITIATED ==="
+          echo "Reason: ${{ github.event.inputs.rason }}
+          echo "Initiated by: ${{ github.actor }}
+          echo "Timestamp: $(date)"
+
+      # Step 2: Authenticate to Azure
+      - name: Azure login
+        uses: azure/login@1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Step 3: Perform the rollback swap
+      - name: Swap slots to rollback production
+        run: |
+          echo "Swapping slots to restore previous production version..."
+          az webapp deployment slot swap \
+          --name tiny-flask-web-app \
+          --resource-group tiny-flask-resource-group \
+          --slot tiny-flask-staging-slot \
+          --target-slot production

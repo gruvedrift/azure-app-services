@@ -162,23 +162,35 @@ When said branch is merged to main, we trigger a slot promotion, and new code is
     ```bash 
       az acr credential show --name tinyflaskcontainerregistry
     ```
-   Store `password` &rarr; into `ACR_PASSWORD` and `username` &rarr; `ACR_USERNAME`. 
+   Store `password` &rarr; into `ACR_PASSWORD` and `username` &rarr; `ACR_USERNAME`.
 
    The last secret we need is the `ACR_LOGIN_SERVER`, which can be obtained by running:
     ```bash
      az acr show --name tinyflaskcontainerregistry --query loginServer -o tsv
      ```
 4) Now that we have the authentication values for `Azure` and our `Docker` safely stored in our GitHub repository we can
-   start working on the workflows. 
-   
-   I have created an example workflow for deploying to, and updating application version variable of the `STAGING` slot. 
+   start working on the workflows.
+
+   I have created an example workflow for deploying to, and updating application version variable of the `STAGING` slot.
    Take a look at the `deploy-staging.yml` file for reference.
 
-5) Next you should create a new branch, do some code changes within the `/iteration-3/` directory, and create a pull request after pushing changes to GitHub:
+5) Next you should create a new branch, do some code changes within the `/iteration-3/` directory, and create a pull
+   request after pushing changes to GitHub:
    ![image](./img/pr-example.png)
-   This should start our workflow, which you can observe working in the pull request, or in the `Actions` tab in your repository.
-6) Once the workflow is finished, you should be able to see your changes to `app.py` and `APPLICATION_VERSION` variable in the `STAGING` slot.
-7) The last thing we need to implement is a manually triggered workflow that runs on `MERGE`. I have provided an example workflow in the file `promote-staging-to-production.yml`. 
-8) After we have merged our last workflow to the `Main` branch, we will be able to trigger the new workflow from the GitHub UI: 
-   ![image](./img/promote-staging-to-production-gha.png) 
+   This should start our workflow, which you can observe working in the pull request, or in the `Actions` tab in your
+   repository.
+6) Once the workflow is finished, you should be able to see your changes to `app.py` and `APPLICATION_VERSION` variable
+   in the `STAGING` slot.
+7) The last thing we need to implement is a manually triggered workflow that runs on `MERGE`. I have provided an example
+   workflow in the file `promote-staging-to-production.yml`.
+8) After we have merged our last workflow to the `Main` branch, we will be able to trigger the new workflow from the
+   GitHub UI:
+   ![image](./img/promote-staging-to-production-gha.png)
    Visit your `PRODUCTION` and `STAGING` slot, and observe that the running versions and `APPLICATION_VERSION` has swapped, while the sticky variables remains slot specific! 🚀 🎉
+
+### 6. Implement rollback procedures for failed deployments
+This step is quite easy. I have chosen to implement a manual "emergency" rollback workflow. All it does is simply to 
+swap the slot again, so that `PRODUCTION` is demoted to `STAGING`, and `STAGING` is promoted to `PRODUCTION`. 
+This puts us in the exact state we had before our deployment. 
+
+Rollback workflow is provided in the file `rollback-production.yml`.
