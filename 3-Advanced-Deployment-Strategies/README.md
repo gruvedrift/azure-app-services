@@ -68,7 +68,7 @@ app_settings = {
 ```
 
 That means that if we swap the `STAGING` slot with the `PRODUCTION` slot, production would suddenly have `ENVIRONMENT="
-STAGING".
+STAGING"`.
 
 For this example I have chosen to use "sticky" setting to mark the `ENVIRONMENT`  and `DATABASE_CONNECTION` variables
 as "locked to the slot".
@@ -84,7 +84,9 @@ as, database connection strings, authentication details or other environment spe
    and `DATABASE_CONNECTION` is correct.
 4) Run the `delploy_v2_staging.sh` to create second application, now with a v2.0 tag and deploy it to registry. The
    environment variable should be updated now:
+
    ![image](./img/staging-v2.png)
+
 5) Run the `swap_slots.sh` script for swapping the slots. You should now be able to observe the production slot,
    running `v2.0`:
    ![image](./img/production-v2.png)
@@ -154,8 +156,11 @@ When said branch is merged to main, we trigger a slot promotion, and new code is
       --sdk-auth
     ```
    This command will return a JSON with important authentication values. Store the whole JSON output into
-   a `GitHub secret` named `AZURE_CREDENTIALS`
+   a `GitHub secret` named `AZURE_CREDENTIALS`.
+
+   Copy and store in New Secret: 
    ![image](./img/add-secret-gh.png)
+
 3) Next, we need to add three other secrets that we need in order to push new Docker Images to
    our `Azure Container Registry`.
    Run the following command:
@@ -174,7 +179,7 @@ When said branch is merged to main, we trigger a slot promotion, and new code is
    I have created an example workflow for deploying to, and updating application version variable of the `STAGING` slot.
    Take a look at the `deploy-staging.yml` file for reference.
 
-5) Next you should create a new branch, do some code changes within the `/iteration-3/` directory, and create a pull
+5) Next you should create a new branch, do some code changes within the `/3-Advanced-Deployment-Strategies/` directory, and create a pull
    request after pushing changes to GitHub:
    ![image](./img/pr-example.png)
    This should start our workflow, which you can observe working in the pull request, or in the `Actions` tab in your
@@ -202,7 +207,6 @@ During a swap, Azure performs the following steps:
 2) Azure warms up the staging slot by restarting it with the new settings. This ensures that the instance is ready for traffic.
 3) Azure re-directs all production traffic to the staging slot instance.
 4) The former production slot becomes the staging slot. 
-
 
 ❗IMPORTANT ON STATE ❗
 - In-memory application state ( cache, active sessions, etc. ) are lost, as both slots restarts.

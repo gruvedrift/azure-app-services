@@ -7,9 +7,9 @@ on:
     # Only trigger on Pull Request to main branch
     branches:
       - main
-    # Only trigger when files in iteration-3 are changed. This is called "path filtering".
+    # Only trigger when files in 3-Advanced-Deployment-Strategies are changed. This is called "path filtering".
     paths:
-      - 'iteration-3/**'
+      - '3-Advanced-Deployment-Strategies/**'
 
 # Definition of jobs to run when this workflow executes
 jobs:
@@ -37,7 +37,7 @@ jobs:
 
       # Step 4: Build Docker image with a PR-specific tag
       - name: Build Docker image
-        working-directory: iteration-3/src
+        working-directory: 3-Advanced-Deployment-Strategies/src
         run: |
           docker build --platform linux/amd64 \
           -t ${{ secrets.ACR_LOGIN_SERVER }}/tiny-flask-web-app:pr-${{ github.event.pull_request.number }} .

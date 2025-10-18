@@ -67,23 +67,23 @@ Environment variables for database connection is passed through `app_settings` i
 
 ### What are the major differences between the service tiers (SKU's):
 
-| Feature Category             | Free (F1)     | Shared (D1)   | Basic (B1/B2/B3)       | Standard (S1/S2/S3)    | Premium v3 (P1v3/P2v3/P3v3) | Isolated (I1/I2/I3)              |
-|------------------------------|---------------|---------------|------------------------|------------------------|-----------------------------|----------------------------------|
-| **Compute Type**             | Shared VM     | Shared VM     | Dedicated VM           | Dedicated VM           | Dedicated VM                | Dedicated VM in isolated network |
-| **Custom Domains**           | ❌             | ✅ (5)         | ✅ (Unlimited)          | ✅ (Unlimited)          | ✅ (Unlimited)               | ✅ (Unlimited)                    |
-| **SSL Certificates**         | ❌             | ❌             | SNI SSL only           | SNI & IP SSL           | SNI & IP SSL                | SNI & IP SSL                     |
-| **Auto-Scale**               | ❌             | ❌             | ❌                      | ✅ (up to 10 instances) | ✅ (up to 30 instances)      | ✅ (up to 100 instances)          |
-| **Deployment Slots**         | ❌             | ❌             | ❌                      | ✅ (5 slots)            | ✅ (20 slots)                | ✅ (20 slots)                     |
-| **Daily Backups**            | ❌             | ❌             | ❌                      | ✅ (10/day)             | ✅ (50/day)                  | ✅ (50/day)                       |
-| **WebJobs/Background Tasks** | ❌             | ❌             | ✅ (Always On required) | ✅                      | ✅                           | ✅                                |
-| **VNet Integration**         | ❌             | ❌             | ❌                      | ❌                      | ✅                           | ✅ (with isolation)               |
-| **Private Endpoints**        | ❌             | ❌             | ❌                      | ❌                      | ✅                           | ✅                                |
-| **Hybrid Connections**       | ❌             | ❌             | ❌                      | ✅ (5)                  | ✅ (25)                      | ✅ (Unlimited)                    |
-| **Traffic Manager**          | ❌             | ❌             | ✅                      | ✅                      | ✅                           | ✅                                |
-| **SLA**                      | None          | None          | 99.95%                 | 99.95%                 | 99.95%                      | 99.95%                           |
-| **Disk Space**               | 1 GB          | 1 GB          | 10 GB                  | 50 GB                  | 250 GB                      | 1 TB                             |
-| **CPU Minutes/Day**          | 60            | 240           | Unlimited              | Unlimited              | Unlimited                   | Unlimited                        |
-| **Memory**                   | 1 GB (shared) | 1 GB (shared) | 1.75-7 GB              | 1.75-7 GB              | 3.5-14 GB                   | 3.5-14 GB                        |
+| Feature Category             | Free (F1)     | Shared (D1)   | Basic (B1/B2/B3)       | Standard (S1/S2/S3)    | Premium v3 (P1v3/P2v3/P3v3)      | Isolated (I1/I2/I3)              |
+|------------------------------|---------------|---------------|------------------------|------------------------|----------------------------------|----------------------------------|
+| **Compute Type**             | Shared VM     | Shared VM     | Dedicated VM           | Dedicated VM           | Dedicated VM                     | Dedicated VM in isolated network |
+| **Custom Domains**           | ❌             | ✅ (5)         | ✅ (Unlimited)          | ✅ (Unlimited)          | ✅ (Unlimited)                    | ✅ (Unlimited)                    |
+| **SSL Certificates**         | ❌             | ❌             | SNI SSL only           | SNI & IP SSL           | SNI & IP SSL                     | SNI & IP SSL                     |
+| **Auto-Scale**               | ❌             | ❌             | ❌                      | ✅ (up to 10 instances) | ✅ (from 30 - 100 instances (v3)) | ✅ (up to 100 instances)          |
+| **Deployment Slots**         | ❌             | ❌             | ❌                      | ✅ (5 slots)            | ✅ (20 slots)                     | ✅ (20 slots)                     |
+| **Daily Backups**            | ❌             | ❌             | ❌                      | ✅ (10/day)             | ✅ (50/day)                       | ✅ (50/day)                       |
+| **WebJobs/Background Tasks** | ❌             | ❌             | ✅ (Always On required) | ✅                      | ✅                                | ✅                                |
+| **VNet Integration**         | ❌             | ❌             | ❌                      | ❌                      | ✅                                | ✅ (with isolation)               |
+| **Private Endpoints**        | ❌             | ❌             | ❌                      | ❌                      | ✅                                | ✅                                |
+| **Hybrid Connections**       | ❌             | ❌             | ❌                      | ✅ (5)                  | ✅ (25)                           | ✅ (Unlimited)                    |
+| **Traffic Manager**          | ❌             | ❌             | ✅                      | ✅                      | ✅                                | ✅                                |
+| **SLA**                      | None          | None          | 99.95%                 | 99.95%                 | 99.95%                           | 99.95%                           |
+| **Disk Space**               | 1 GB          | 1 GB          | 10 GB                  | 50 GB                  | 250 GB                           | 1 TB                             |
+| **CPU Minutes/Day**          | 60            | 240           | Unlimited              | Unlimited              | Unlimited                        | Unlimited                        |
+| **Memory**                   | 1 GB (shared) | 1 GB (shared) | 1.75-7 GB              | 1.75-7 GB              | 3.5-14 GB                        | 3.5-14 GB                        |
 
 The jump from **Basic** to **Standard** is significant because it unlocks deployment slots. This is where App Services start to rival sophisticated deployment patterns achieved in my
 **azure-containerized-solutions** repository.
