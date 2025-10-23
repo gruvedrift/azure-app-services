@@ -19,3 +19,5 @@ With App Service, Microsoft handles the underlying infrastructure, OS updates, s
 
 ## Other notes on Azure App Services 
 
+
+# Mention that one will need .NET and .NET sdk to complete iteration 4 

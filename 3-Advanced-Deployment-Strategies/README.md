@@ -21,7 +21,7 @@ before they affect real users.
 5. Test slot swap operations and understand their implications
 6. Implement rollback procedures for failed deployments
 
-### 1 + 2 + 4 + 5. Staging and production deployment slots + Slot-specific settings + Manual promotion + Test swap operation.
+### 1 - 5. Staging and production deployment slots + Slot-specific settings + Manual promotion + Test swap operation.
 
 Azure App Service deployment slots are live environments within the same App Service instance, which means we don't pay
 for additional
