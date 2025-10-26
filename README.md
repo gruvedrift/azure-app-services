@@ -2,7 +2,7 @@
 
 This project was created as a **hands-on-practice** for preparing for the az-204 exam. It demonstrates how to use,
 configure and deploy Azure
-App Services. Examples are based on real-world applicable scenarios, and can be used as a "baseline" reference.
+App Services. Examples are based on real-world scenarios, and can be used as a "baseline" reference.
 The project is split into four iterations where each iteration are standalone projects with different scopes and
 learning outcomes.
 
@@ -10,7 +10,6 @@ Additional exam relevant questions are included in
 the [QA.md](https://github.com/gruvedrift/azure-app-services/blob/main/Extra-Resources/QA.md) file.
 
 ### Requirements:
-
 - Azure subscription
 - Terraform
 - Docker technology ( [Docker Desktop](https://www.docker.com/products/docker-desktop) ,
@@ -18,11 +17,18 @@ the [QA.md](https://github.com/gruvedrift/azure-app-services/blob/main/Extra-Res
 - .NET and .NET SDK
 - Python
 
+### Prerequisite Knowledge:
+- Basic understanding of cloud computing concepts.
+- Familiarity with command-line interfaces (bash/PowerShell).
+- Basic understanding of web applications and HTTP.
+- Git fundamentals (for Iteration 3).
+- No prior Azure experience required, concepts are explained as we go.
+
 ### Each Iteration contains:
 
 * Terraform configuration for provisioning the necessary resources.
 * A Python or .NET application with necessary code and functionality for testing.
-* Various scripts for provision, build and testing automatization.
+* Various scripts for provisioning, building, and test automation.
 * A comprehensive README file with sections for:
     * Learning Goals
     * Project description
