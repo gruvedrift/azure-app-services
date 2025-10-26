@@ -1,11 +1,23 @@
 ## Project Iteration 2: Monitoring and Diagnostics Implementation
-#### Syllabus Objectives Covered:
+
+### Syllabus Objectives Covered:
 * Configure and implement diagnostics and logging
 
-**Learning Goals:** Implement comprehensive monitoring, logging, and diagnostics for production-ready applications.
+### Learning Goals:
+Implement comprehensive monitoring, logging, and diagnostics for production-ready applications.
 
-**Project Description:** Enhance your web application from Iteration 1 with detailed monitoring capabilities. Implement application logging, performance monitoring, and
+### Project Description:
+Enhance your web application from Iteration 1 with detailed monitoring capabilities. Implement application logging, performance monitoring, and
 automated alerting for production issues.
+
+### Implementation steps: 
+
+1. Enable Application Insights integration
+2. Configure application logging levels and destinations
+3. Implement custom telemetry and performance counters
+4. Set up automated alerts for errors and performance degradation
+5. Create dashboards for monitoring application health
+6. Practice troubleshooting using logs and metrics
 
 ### This iteration is mostly about App Insights and logging.
 

@@ -1,14 +1,14 @@
-## Project Iteration 3: Advanced Deployment Strategies
+# Project Iteration 3: Advanced Deployment Strategies
 
-#### Syllabus Objectives Covered:
-
+### Syllabus Objectives Covered:
 * Deploy code and containerized solutions
 * Configure deployment slots
 
-**Learning Goals:** Master sophisticated deployment patterns that enable safe, continuous delivery to production
-environments.
+### Learning Goals:
+Master sophisticated deployment patterns that enable safe, continuous delivery to production environments.
 
-**Project Description:** Implement a complete CI/CD pipeline using deployment slots. Create staging and production
+### Project Description:
+Implement a complete CI/CD pipeline using deployment slots. Create staging and production
 environments that allow safe testing of changes
 before they affect real users.
 

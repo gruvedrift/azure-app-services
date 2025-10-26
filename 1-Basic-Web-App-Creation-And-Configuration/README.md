@@ -1,21 +1,23 @@
-## Project Iteration 1: Basic Web App Creation and Configuration
+# Project Iteration 1: Basic Web App Creation and Configuration
 
-#### Syllabus Objectives Covered:
+### Syllabus Objectives Covered:
 * Create an Azure App Service Web App
 * Configure settings including Transport Layer Security (TLS), API settings, and service connections
 
-**Learning Goals:** Master the fundamentals of creating and configuring App Service Web Apps with proper security settings.
+### Learning Goals:
+Master the fundamentals of creating and configuring App Service Web Apps with proper security settings.
 
-**Project Description:** Create a web application that displays product information from a database. Focus on proper configuration of application settings, connection
+### Project Description:
+Create a web application that displays product information from a database. Focus on proper configuration of application settings, connection
 strings, and TLS certificates.
 
-This iteration focuses on basic web app creation and configuration.
+### Implementation steps:
 
-1) Create an Azure App Service and Web App ✅
-2) Deploy a simple web application that connects to a database ✅
-3) Configure application settings and connection strings securely ✅ 
-4) Enable HTTPS and configure custom domain with TLS certificate ✅ 
-5) Set up API settings for external service integration ✅ 
+1) Create an Azure App Service and Web App
+2) Deploy a simple web application that connects to a database
+3) Configure application settings and connection strings securely
+4) Enable HTTPS and configure custom domain with TLS certificate
+5) Set up API settings for external service integration
 
 These are the most essential fundamentals for creating and configuring Azure Web Apps with proper security settings.
 
